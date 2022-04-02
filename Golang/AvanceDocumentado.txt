@@ -1,0 +1,5 @@
+01-04-2022: 
+  Se han subido las práticas previas al repositorio
+  PENDIENTES: La distribución de los hilos en el producto de matrices
+  
+  ONCE LET'S GO! :D
