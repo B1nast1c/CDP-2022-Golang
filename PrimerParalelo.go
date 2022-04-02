@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"fmt"
 	"time"
@@ -25,3 +26,4 @@ func (c *Caballo) Correr() {
 		fmt.Printf("%s: %d\n", c.name, idx)
 	}
 }
+*/

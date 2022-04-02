@@ -1,6 +1,8 @@
 package main
 
-/*type Caballo struct {
+import "fmt"
+
+type Caballo struct {
 	name     string
 	actuales int
 	limite   int
@@ -28,4 +30,4 @@ func main() {
 
 	Correr(caballo)
 	Correr(caballo1)
-}*/
+}

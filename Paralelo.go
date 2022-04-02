@@ -1,6 +1,7 @@
-/*package main
+package main
 
-import (
+/*import (
+	"fmt"
 	"time"
 )
 

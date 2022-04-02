@@ -1,8 +1,8 @@
 package main
 
-//ESTE CODIGO YA MIDE EL TIEMPO :)
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"sync"
 	"time"
@@ -11,6 +11,8 @@ import (
 var wg sync.WaitGroup //Espera que una colección de rutinas de Go se ejecuten - PARA LA SEGUNDA PARTE
 var SIZE int
 var tiempoFinal int64
+var Jobs chan int
+var Workers chan int
 
 type Result struct {
 	x1, y1, x2, y2            int
@@ -44,48 +46,62 @@ func Init(a, b, c, d int) *Result {
 
 func generarMatrices(num int) (*Result, int) { //Funcion generadora de matrices
 	rand.Seed(time.Now().UnixNano())
-	//a, b, c := rand.Intn(num)+1, rand.Intn(num)+1, rand.Intn(num)+1
-	//Dimensiones de la matriz resultante a - filas matriz1 b - columnas matriz1 y filas matriz2 - c columnas matriz
-	a := 350
-	//a, b, c := rand.Intn(num) + 1
+	a := 500
+	//a, b, c := rand.Intn(num) + 1 MISMA DIMENSION
 	SIZE = a
 	generado := Init(a, a, a, a) //Genera una matriz cuadrada siempre, acomodado para otros casos
 	return generado, a * a
 }
 
 func main() {
-	//defer fmt.Println("El producto de las matrices se ha completado") //Al final
 	var limite int
 	fmt.Print("Ingrese limite maximo de dimensiones ")
 	fmt.Scan(&limite)
-	productoMatricesClasico(limite)
+	productoMatricesClasico(limite) //Llama a los canales
 	wg.Wait()
 }
 
 //Resolución de las matrices, a manera básica
 func productoMatricesClasico(limit int) *Result {
 	matriz, numHilos := generarMatrices(limit)
-	wg.Add(numHilos) //Cantidad de hilos independientes que va a esperar
+	Jobs = make(chan int, numHilos)
+	Workers = make(chan int, numHilos)
+
+	cantWorkers := math.Ceil(float64(SIZE / 10))
+	wg.Add(int(cantWorkers)) //Cantidad de workers que va a esperar
+
+	for w := 1; w <= int(cantWorkers); w++ { //Me falta determinar cuantos workers debo crear para lo más optimo unu
+		go func(idx int) {
+			for jobValue := range Jobs {
+				Workers <- jobValue //Manda el valor computado al canal que recibe información
+			}
+			defer wg.Done()
+		}(w)
+	}
+
 	for idxf, item := range matriz.final {
-		for idxc := range item {
-			go productoIndividual(idxf, idxc, *matriz, time.Now()) //Se crean hilos individuales para cada elemento de nuestra matriz
+		for idxc := range item { //Producto individual va al canal de input
+			Jobs <- productoIndividual(idxf, idxc, *matriz, time.Now()) //Se crean hilos individuales para cada elemento de nuestra matriz
 		}
 	}
+	close(Jobs)
+
+	/* for idx := 1; idx <= numHilos; idx++ {
+		fmt.Print(<-Workers) //Sale en desorden porque la multiplicación no es secuencial ni es un hilo para cada item - Además un worker se desocupa y sigue actuando
+	} */
+
+	//fmt.Print(matriz.matriz_1, matriz.matriz_2, matriz.final)
 	defer fmt.Printf("Tiempo final en microsegundos: %d", tiempoFinal)
 	return matriz
 }
 
-func productoIndividual(fila int, column int, obj Result, tiempo time.Time) {
+func productoIndividual(fila int, column int, obj Result, tiempo time.Time) int { //Simplemente hace el cálculo
 	for idx := 0; idx < SIZE; idx++ {
 		obj.final[fila][column] += obj.matriz_1[fila][idx] * obj.matriz_2[idx][column]
 	}
 	defer func() {
 		recorrido := time.Since(tiempo).Microseconds()
-		//fmt.Printf("Tiempo de demora: %d microseg // %d AYUDA\n", tiempo, recorrido.Milliseconds())
 		tiempoFinal += recorrido
-		//fmt.Println(recorrido.Microseconds())
 	}()
-	wg.Done()
+	return obj.final[fila][column]
 }
-
-//Pendiente, administración de threads DIA LUNES
