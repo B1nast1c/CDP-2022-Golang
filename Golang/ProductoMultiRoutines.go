@@ -46,7 +46,7 @@ func Init(a, b, c, d int) *Result {
 
 func generarMatrices(num int) (*Result, int) { //Funcion generadora de matrices
 	rand.Seed(time.Now().UnixNano())
-	a := 500
+	a := rand.Intn(num) + 1
 	//a, b, c := rand.Intn(num) + 1 MISMA DIMENSION
 	SIZE = a
 	generado := Init(a, a, a, a) //Genera una matriz cuadrada siempre, acomodado para otros casos

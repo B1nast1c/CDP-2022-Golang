@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var wg sync.WaitGroup //Espera que una colección de rutinas de Go se ejecuten - PARA LA SEGUNDA PARTE
+var wg sync.WaitGroup //Espera que una colección de rutinas de Go se ejecuten
 var SIZE int
 var tiempoFinal int64
 
@@ -46,7 +46,7 @@ func generarMatrices(num int) (*Result, int) { //Funcion generadora de matrices
 	rand.Seed(time.Now().UnixNano())
 	//a, b, c := rand.Intn(num)+1, rand.Intn(num)+1, rand.Intn(num)+1
 	//Dimensiones de la matriz resultante a - filas matriz1 b - columnas matriz1 y filas matriz2 - c columnas matriz
-	a := 350
+	a := rand.Intn(num) + 1
 	//a, b, c := rand.Intn(num) + 1
 	SIZE = a
 	generado := Init(a, a, a, a) //Genera una matriz cuadrada siempre, acomodado para otros casos
