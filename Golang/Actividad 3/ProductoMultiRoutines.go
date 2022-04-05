@@ -11,6 +11,7 @@ import (
 var wg sync.WaitGroup //Espera que una colección de rutinas de Go se ejecuten - PARA LA SEGUNDA PARTE
 var SIZE int
 var tiempoFinal int64
+var tiempoInit time.Time
 var Jobs chan int
 var Workers chan int
 
@@ -57,7 +58,10 @@ func main() {
 	var limite int
 	fmt.Print("Ingrese limite maximo de dimensiones ")
 	fmt.Scan(&limite)
-	productoMatricesClasico(limite) //Llama a los canales
+	for idx := 1; idx <= limite; idx++ {
+		//tiempoFinal = 0
+		productoMatricesClasico(idx)
+	}
 	wg.Wait()
 }
 
@@ -67,8 +71,8 @@ func productoMatricesClasico(limit int) *Result {
 	Jobs = make(chan int, numHilos)
 	Workers = make(chan int, numHilos)
 
-	cantWorkers := math.Ceil(float64(SIZE / 10))
-	wg.Add(int(cantWorkers)) //Cantidad de workers que va a esperar
+	cantWorkers := math.Ceil(float64(SIZE / 10)) //10 - 500
+	wg.Add(int(cantWorkers))                     //Cantidad de workers que va a esperar
 
 	for w := 1; w <= int(cantWorkers); w++ { //Me falta determinar cuantos workers debo crear para lo más optimo unu
 		go func(idx int) {
@@ -81,7 +85,8 @@ func productoMatricesClasico(limit int) *Result {
 
 	for idxf, item := range matriz.final {
 		for idxc := range item { //Producto individual va al canal de input
-			Jobs <- productoIndividual(idxf, idxc, *matriz, time.Now()) //Se crean hilos individuales para cada elemento de nuestra matriz
+			tiempoInit = time.Now()
+			Jobs <- productoIndividual(idxf, idxc, *matriz, tiempoInit) //Se crean hilos individuales para cada elemento de nuestra matriz
 		}
 	}
 	close(Jobs)
@@ -89,9 +94,9 @@ func productoMatricesClasico(limit int) *Result {
 	/* for idx := 1; idx <= numHilos; idx++ {
 		fmt.Print(<-Workers) //Sale en desorden porque la multiplicación no es secuencial ni es un hilo para cada item - Además un worker se desocupa y sigue actuando
 	} */
-
+	defer fmt.Printf("%d %d \n", limit, tiempoFinal)
 	//fmt.Print(matriz.matriz_1, matriz.matriz_2, matriz.final)
-	defer fmt.Printf("Tiempo final en microsegundos: %d", tiempoFinal)
+	//defer fmt.Printf("Tiempo final en microsegundos: %d", tiempoFinal)
 	return matriz
 }
 
@@ -100,7 +105,7 @@ func productoIndividual(fila int, column int, obj Result, tiempo time.Time) int 
 		obj.final[fila][column] += obj.matriz_1[fila][idx] * obj.matriz_2[idx][column]
 	}
 	defer func() {
-		recorrido := time.Since(tiempo).Microseconds()
+		recorrido := time.Since(tiempo).Milliseconds()
 		tiempoFinal += recorrido
 	}()
 	return obj.final[fila][column]

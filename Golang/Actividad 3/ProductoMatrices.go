@@ -8,9 +8,11 @@ import (
 	"time"
 )
 
+//Array de matrices AAAAAAAAAAAAAAAAAAAA
 var wg sync.WaitGroup //Espera que una colección de rutinas de Go se ejecuten
 var SIZE int
 var tiempoFinal int64
+var tiempoInit time.Time
 
 type Result struct {
 	x1, y1, x2, y2            int
@@ -58,7 +60,10 @@ func main() {
 	var limite int
 	fmt.Print("Ingrese limite maximo de dimensiones ")
 	fmt.Scan(&limite)
-	productoMatricesClasico(limite)
+	for idx := 1; idx <= limite; idx++ {
+		//tiempoFinal = 0
+		productoMatricesClasico(idx)
+	}
 	wg.Wait()
 }
 
@@ -68,10 +73,12 @@ func productoMatricesClasico(limit int) *Result {
 	wg.Add(numHilos) //Cantidad de hilos independientes que va a esperar
 	for idxf, item := range matriz.final {
 		for idxc := range item {
-			go productoIndividual(idxf, idxc, *matriz, time.Now()) //Se crean hilos individuales para cada elemento de nuestra matriz
+			tiempoInit = time.Now()
+			go productoIndividual(idxf, idxc, *matriz, tiempoInit) //Se crean hilos individuales para cada elemento de nuestra matriz
 		}
 	}
-	defer fmt.Printf("Tiempo final en microsegundos: %d", tiempoFinal)
+	//fmt.Printf("Tiempo final en microsegundos: %d\n", tiempoFinal)
+	defer fmt.Printf("%d %d \n", limit, tiempoFinal)
 	return matriz
 }
 
@@ -80,12 +87,10 @@ func productoIndividual(fila int, column int, obj Result, tiempo time.Time) {
 		obj.final[fila][column] += obj.matriz_1[fila][idx] * obj.matriz_2[idx][column]
 	}
 	defer func() {
-		recorrido := time.Since(tiempo).Microseconds()
+		recorrido := time.Since(tiempo).Milliseconds()
 		//fmt.Printf("Tiempo de demora: %d microseg // %d AYUDA\n", tiempo, recorrido.Milliseconds())
 		tiempoFinal += recorrido
 		//fmt.Println(recorrido.Microseconds())
 	}()
 	wg.Done()
 }
-
-//Pendiente, administración de threads DIA LUNES

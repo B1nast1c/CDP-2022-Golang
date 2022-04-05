@@ -23,11 +23,11 @@ func Correr(c *Caballo) {
 
 }
 
-func main() {
+/*func main() {
 	caballo, caballo1 := new(Caballo), new(Caballo)
 	caballo.Init("Carmelo", 5)
 	caballo1.Init("Matias", 7)
 
 	Correr(caballo)
 	Correr(caballo1)
-}
+}*/
