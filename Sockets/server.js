@@ -7,7 +7,7 @@ let port = args[1]
 
 const main = function () {
     server.on('error', (err) => {
-        console.log('Un error ha ocurrido ->\n ${err.stack}') //Manejo de posibles errores de servidor
+        console.log('Un error ha ocurrido ->'+ err.stack) //Manejo de posibles errores de servidor
         server.close()
     })
     
