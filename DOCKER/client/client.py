@@ -6,6 +6,7 @@ ip = socket.gethostbyname(host)
 ip = ip.replace(ip[len(ip)-1:], "2")
 
 server_address = (str(ip), 5000)
+#server_address = ('localhost', 5000)
 
 funcion = input() #Entrada por consola
 x = float(input())
@@ -18,7 +19,7 @@ try:
     sent = sock.sendto(message.encode(), server_address) #Envio al cliente, mensaje en bytes 
 
     data, server = sock.recvfrom(4096)
-    print('Integral Computada:  {!r}'.format(data)) #Aqui va el mensaje que se recibe del servidor, en este caso la integral
+    print('N° de Trapecios - Integral Computada:  {}'.format(data)) #Aqui va el mensaje que se recibe del servidor, en este caso la integral
 
 finally:
     print('Terminando Conexión')
